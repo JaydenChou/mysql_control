@@ -1,8 +1,8 @@
 TARGET = main
 OBJS = field.o mysql_control.o main.o
-CFLAGS = -g
+CPPFLAGS = -g `mysql_config --cflags`
 CC = g++
-LIB = -lmysqlclient
+LIB = `mysql_config --libs_r`
 $(TARGET) : $(OBJS) 
 	$(CC) -o $(TARGET) $(OBJS) $(CFLAGS) $(LIB)
 
