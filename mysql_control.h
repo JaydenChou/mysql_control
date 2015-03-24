@@ -29,8 +29,17 @@
 #include "field.h"
 using namespace std;  
 
+enum CON_LOG_KIND
+{
+    CONTROL_INFO,
+    CONTROL_ERROR,
+};
+
 class MysqlControl  
 {  
+    typedef void(*CONTROL_LOG_FUN)(CON_LOG_KIND kind, const char *msg, const char *sql);
+    typedef void(*MYSQL_LOG_FUN)(int error, const char *msg);
+
 private:  
     MYSQL *m_Connection;                //与MYSQL的连接句柄  
     MYSQL_RES *m_Result;                //上一次查询的结果集  
@@ -40,12 +49,11 @@ private:
     int m_RowCount;                        //上一次查询的结果集的行数  
     int m_ColumnCount;                    //上一次查询的结果集的列数  
     string m_sql;                       //sql语句的缓冲区
+    CONTROL_LOG_FUN m_ControlLogFun;
+    MYSQL_LOG_FUN m_MysqlLogFun;
 
     //发生错误时输出错误信息  
-    void OutputError(const string &str); 
-
-    //
-    string GetNodeContent(MYSQL_ROW row, int index);
+    void OutputLog(CON_LOG_KIND kind, const char *msg); 
 
     //将格式化字符串赋给string，参数和printf的参数一样，返回格式化后的string类  
     string StringFormat(const char *format, ...);
@@ -59,8 +67,15 @@ public:
     MysqlControl();  
     ~MysqlControl();  
 
+    //获取连接和结果集的指针，尽量不要使用该接口
     MYSQL *GetMysql() const { return m_Connection; }  
     MYSQL_RES *GetMysqlRes() const { return m_Result; }  
+
+    //设置日志的回调函数
+    void SetMysqlLogCallback(MYSQL_LOG_FUN fun)
+    { m_MysqlLogFun = fun; }
+    void SetControlLogCallback(CONTROL_LOG_FUN fun)
+    { m_ControlLogFun = fun; }
 
     //与MYSQL建立连接  
     bool RealConnect(const string &host, const string &user,  

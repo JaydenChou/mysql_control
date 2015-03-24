@@ -30,6 +30,8 @@ MysqlControl::MysqlControl()
     m_Field = NULL;
     m_Connected = false;  
     m_RowCount = m_ColumnCount = 0;  
+    m_ControlLogFun = NULL;
+    m_MysqlLogFun = NULL;
 }  
 
 MysqlControl::~MysqlControl()  
@@ -40,15 +42,30 @@ MysqlControl::~MysqlControl()
     delete m_Connection;  
 }  
 
-void MysqlControl::OutputError(const string &str)  
+void MysqlControl::OutputLog(CON_LOG_KIND kind, const char *msg)
 {  
-    if( mysql_errno(m_Connection) == 0 )  
-    {  
-        fprintf(stderr, "%s\n", str.c_str());  
-        return;  
-    }  
-    fprintf(stderr, "%s : %d: %s\n", str.c_str(),  
-        mysql_errno(m_Connection), mysql_error(m_Connection));  
+    if (CONTROL_ERROR == kind &&
+        mysql_errno(m_Connection) != 0)
+    {
+        int err = mysql_errno(m_Connection);
+        const char *strerr = mysql_error(m_Connection);
+        if (NULL == m_MysqlLogFun)
+            fprintf(stderr, "MYSQL ERROR : %d: %s\n", err, strerr);
+        else
+            m_MysqlLogFun(err, strerr);
+    }
+
+    if( NULL == m_ControlLogFun )
+    {
+        if( CONTROL_INFO == kind )
+            printf("INFO--%s : %s\n", msg, m_sql.c_str());
+        else if( CONTROL_ERROR == kind )
+            printf("ERROR--%s : %s\n", msg, m_sql.c_str());
+    }
+    else
+    {
+        m_ControlLogFun(kind, msg, m_sql.c_str());
+    }
 }  
 
 bool MysqlControl::RealConnect(const string &host,  
@@ -77,9 +94,11 @@ bool MysqlControl::RealConnect(const string &host,
 
     if( m_Connection == NULL )  
     {  
-        OutputError("real connect fail");  
+        OutputLog(CONTROL_ERROR, "real connect fail");  
         return false;  
     }  
+
+    OutputLog(CONTROL_INFO, "real connect success");
 
     //设置自动重连
     if( reconnect )
@@ -99,9 +118,10 @@ bool MysqlControl::ChangeUser(const string &host, const string &user,
         password.c_str(), db.c_str());  
     if( res != 0 )  
     {  
-        OutputError("change user fail");  
+        OutputLog(CONTROL_ERROR, "change user fail");  
         return false;  
     }  
+    OutputLog(CONTROL_INFO, "change user success");
     return true;  
 }  
 
@@ -130,9 +150,13 @@ int MysqlControl::Query(const char *order, ...)
     int res = mysql_query(m_Connection, m_sql.c_str());  
     if( res != 0 )  
     {  
-        OutputError("sql error");  
+        OutputLog(CONTROL_ERROR, "sql error");  
         return -1;  
     }  
+    else
+    {
+        OutputLog(CONTROL_INFO, "query sql");
+    }
 
     //将影响的行数作为返回值  
     res = mysql_affected_rows(m_Connection);  
@@ -154,9 +178,13 @@ int MysqlControl::QueryAndStore(const char *order, ...)
     int res = mysql_query(m_Connection, m_sql.c_str()); 
     if( res != 0 )  
     {  
-        OutputError("sql error");  
+        OutputLog(CONTROL_ERROR, "sql error");  
         return -1;  
     }  
+    else
+    {
+        OutputLog(CONTROL_INFO, "query sql");
+    }
 
     //将my_res设为当前的结果集和行列数  
     m_Result = mysql_store_result(m_Connection);
