@@ -1,8 +1,6 @@
 //²âÊÔÀý×Ó
 
 #include "mysql_control.h"  
-#include "double_d_array.h"
-#include "field.h"
 #include <string>
 #include <iostream>
 using namespace std;
@@ -10,7 +8,7 @@ using namespace std;
 #define HOST "localhost"
 #define USER "root"
 #define PASSWORD "aaaaaaa"
-#define DB "auth"
+#define DB "test"
 
 void MysqlLogCallBack(int errid, const char *msg)
 {

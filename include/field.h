@@ -18,7 +18,7 @@
 #ifndef _FIELD_H
 #define _FIELD_H
 
-#include <mysql.h>
+#include <mysql/mysql.h> 
 #include <stdint.h>
 #include <cstdlib>
 #include <cstring>
@@ -274,13 +274,68 @@ private:
         }
 
     public:
-        Field();
-        ~Field();
-        Field(const Field &other);
-        Field & operator = (const Field &);
+        Field()
+		{
+			Init();
+		}
+        ~Field()
+		{
+			CleanUp();
+		}
+        Field(const Field &other)
+		{
+			Init();
+			if (other.raw)
+				SetByteValue(other.value, other.length, other.type, other.length);
+			else
+				SetStructuredValue((char*)other.value, other.type);
+		}
+        Field & operator = (const Field &other)
+		{
+			if (this == &other)
+				return *this; 
 
-        void SetByteValue(void const* newValue, size_t const newSize, enum_field_types newType, uint32 length);
-        void SetStructuredValue(char* newValue, enum_field_types newType);
+			Init();
+			if (other.raw)
+				SetByteValue(other.value, other.length, other.type, other.length);
+			else
+				SetStructuredValue((char*)other.value, other.type);
+			return *this;
+		}
+
+        void SetByteValue(void const* newValue, size_t const newSize, enum_field_types newType, uint32 length)
+		{
+			if (value)
+				CleanUp();
+
+			// This value stores raw bytes that have to be explicitly cast later
+			if (newValue)
+			{
+				value = new char[newSize];
+				memcpy(value, newValue, newSize);
+				length = length;
+			}
+			type = newType;
+			raw = true;
+		}
+
+        void SetStructuredValue(char* newValue, enum_field_types newType)
+		{
+			if (value)
+				CleanUp();
+
+			// This value stores somewhat structured data that needs function style casting
+			if (newValue)
+			{
+				size_t size = strlen(newValue);
+				value = new char [size+1];
+				strcpy((char*)value, newValue);
+				length = size;
+			}
+
+			type = newType;
+			raw = false;
+		}
 
         void CleanUp()
         {
