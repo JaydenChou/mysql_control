@@ -18,7 +18,7 @@
 #ifndef PUBLIC_MYSQL_CONTROL_H_
 #define PUBLIC_MYSQL_CONTROL_H_  
 
-#include <mysql/mysql.h>  
+#include <mysql.h>  
 
 #include <iostream>  
 #include <string>  

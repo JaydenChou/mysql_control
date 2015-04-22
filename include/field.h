@@ -18,7 +18,7 @@
 #ifndef _FIELD_H
 #define _FIELD_H
 
-#include <mysql/mysql.h> 
+#include <mysql.h> 
 #include <stdint.h>
 #include <cstdlib>
 #include <cstring>
