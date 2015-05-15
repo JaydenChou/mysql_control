@@ -5,10 +5,10 @@
 #include <iostream>
 using namespace std;
 
-#define HOST "localhost"
-#define USER "root"
-#define PASSWORD "aaaaaaa"
-#define DB "test"
+#define TEST_HOST "localhost"
+#define TEST_USER "root"
+#define TEST_PASSWORD "aaaaaaa"
+#define TEST_DB "test"
 
 void MysqlLogCallBack(int errid, const char *msg)
 {
@@ -27,7 +27,7 @@ int main(void)
 
     control.SetControlLogCallback(ControlLogCallback);
     control.SetMysqlLogCallback(MysqlLogCallBack);
-    bool ok = control.RealConnect(HOST, USER, PASSWORD, DB);
+    bool ok = control.RealConnect(TEST_HOST, TEST_USER, TEST_PASSWORD, TEST_DB);
     if (!ok)
     {
         cout << "connect error" << endl;

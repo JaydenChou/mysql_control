@@ -46,7 +46,6 @@ private:
     MYSQL *m_Connection;                //与MYSQL的连接句柄  
     MYSQL_RES *m_Result;                //上一次查询的结果集  
     MYSQL_FIELD *m_Field;
-    bool m_DebugLog;                    //是否输出调试日志
     bool m_Connected;                    //程序是否已经和MYSQL连接了  
     int m_RowCount;                        //上一次查询的结果集的行数  
     int m_ColumnCount;                    //上一次查询的结果集的列数  
@@ -148,25 +147,17 @@ public:
     { m_ControlLogFun = fun; }
 
     //与MYSQL建立连接  
-    bool RealConnect(const string &host, const string &user,  
-        const string &password, const string &db=string(),  
-        unsigned int port=0, const string &unix_socket=string(),  
-        unsigned long client_flag=0, bool reconnect=true)
+    bool RealConnect(const char *host, const char *user,  
+        const char *password, const char *db = NULL,  
+        unsigned int port = 0, const char *unix_socket = NULL,  
+        unsigned long client_flag = 0, bool reconnect = true)
 	{  
 		if( m_Connected )
 			return true;
 
-		//因为unix_socket=NULL时，是有特殊意义的，所以要特别处理一下  
-		char *un_sock;  
-		if( unix_socket.empty() )  
-			un_sock = NULL;  
-		else  
-			un_sock = (char*)unix_socket.c_str();  
-
 		//连接数据库，设置标志(connected)  
-		m_Connection = mysql_real_connect(m_Connection, host.c_str(),   
-			user.c_str(), password.c_str(), db.c_str(), port,   
-			un_sock, client_flag);  
+		m_Connection = mysql_real_connect(m_Connection, host,   
+			user, password, db, port, unix_socket, client_flag);  
 
 		if( m_Connection == NULL )  
 		{  
@@ -186,12 +177,12 @@ public:
 	} 
 
     //改变当前的用户   
-    bool ChangeUser(const string &host, const string &user,   
-        const string &password, const string &db=string())
+    bool ChangeUser(const char *host, const char *user,   
+        const char *password, const char *db = NULL)
 	{  
 		assert(m_Connected);  
-		int res = mysql_change_user(m_Connection, user.c_str(),   
-			password.c_str(), db.c_str());  
+		int res = mysql_change_user(m_Connection, user,   
+			password, db);  
 		if( res != 0 )  
 		{  
 			OutputLog(CONTROL_ERROR, "change user fail");  
@@ -290,8 +281,6 @@ public:
     //返回由以前的INSERT或UPDATE语句为AUTO_INCREMENT列生成的值
     int GetInsertID()
     { return mysql_insert_id(m_Connection); }
-
-    void SetDebugLog(bool debug) { m_DebugLog = debug; }
 
     //获取某个单元格的结果，将其作为返回值  
     Field GetOneNode(int row, int column)
