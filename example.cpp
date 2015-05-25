@@ -3,7 +3,6 @@
 #include "mysql_control.h"  
 #include <string>
 #include <iostream>
-using namespace std;
 
 #define TEST_HOST "localhost"
 #define TEST_USER "root"
@@ -12,7 +11,7 @@ using namespace std;
 
 void MysqlLogCallBack(int errid, const char *msg)
 {
-    cout << "Mysql error: " << errid << "--" << msg << endl;
+    std::cout << "Mysql error: " << errid << "--" << msg << std::endl;
 }
 
 void ControlLogCallback(CON_LOG_KIND kind, const char *msg, const char *sql)
@@ -30,7 +29,7 @@ int main(void)
     bool ok = control.RealConnect(TEST_HOST, TEST_USER, TEST_PASSWORD, TEST_DB);
     if (!ok)
     {
-        cout << "connect error" << endl;
+        std::cout << "connect error" << std::endl;
         return 1;
     }
 
@@ -38,7 +37,7 @@ int main(void)
     DoubleDArray<Field> arr;
     control.GetAllResult(arr);
     for (size_t i = 0; i < arr.GetRowCount(); i++)
-        cout << arr.GetValue(i, 0).GetString() << endl;
+        std::cout << arr.GetValue(i, 0).GetString() << std::endl;
     
     return 0;
 }

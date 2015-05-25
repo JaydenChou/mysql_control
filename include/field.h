@@ -23,7 +23,6 @@
 #include <cstdlib>
 #include <cstring>
 #include <string>
-using namespace std;
 
 typedef int64_t int64;
 typedef int32_t int32;

@@ -29,7 +29,6 @@
 #include <cstdarg>
 #include "double_d_array.h"
 #include "field.h"
-using namespace std;  
 
 enum CON_LOG_KIND
 {
@@ -49,7 +48,7 @@ private:
     bool m_Connected;                    //程序是否已经和MYSQL连接了  
     int m_RowCount;                        //上一次查询的结果集的行数  
     int m_ColumnCount;                    //上一次查询的结果集的列数  
-    string m_sql;                       //sql语句的缓冲区
+    std::string m_sql;                       //sql语句的缓冲区
     CONTROL_LOG_FUN m_ControlLogFun;
     MYSQL_LOG_FUN m_MysqlLogFun;
 
@@ -81,9 +80,9 @@ private:
 	} 
 
     //将格式化字符串赋给string，参数和printf的参数一样，返回格式化后的string类  
-	string StringFormat(const char *format, ...)
+	std::string StringFormat(const char *format, ...)
 	{
-		string result;
+		std::string result;
 		//将字符串的长度初始化为1024  
 		int tlen = 1024;
 		int len = 0;
@@ -232,7 +231,7 @@ public:
 		return res;  
 	} 
 
-    int Query(const string &order)
+    int Query(const std::string &order)
     { return Query(order.c_str()); }
 
     //执行一条SQL语句，并把返回的结果放置到结果集中  
@@ -271,7 +270,7 @@ public:
 		return m_RowCount;  
 	}  
 
-    int QueryAndStore(const string &order)
+    int QueryAndStore(const std::string &order)
     { return QueryAndStore(order.c_str()); }
 
     //返回结果集的行数或列数  
@@ -354,7 +353,7 @@ public:
 	}  
 
     //获取结果集中的表头的名字  
-    void GetHeaderName(vector<string> &vec)
+    void GetHeaderName(std::vector<std::string> &vec)
 	{  
 		if( NULL == m_Result )
 			return;
@@ -369,7 +368,7 @@ public:
 	}  
 
     //返回SQL缓冲区的指针
-    string GetSQLString() { return m_sql; }
+    std::string GetSQLString() { return m_sql; }
 };  
 
 

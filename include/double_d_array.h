@@ -22,7 +22,6 @@
 #include <iostream>  
 #include <cassert>  
 #include <cstdio>  
-using namespace std;  
 
 //这是一个简单的二维数组的封装类，类似于二维的vector，是用一维数组实现的  
 //效率比较高，但不提供改变行数和列数的功能  
